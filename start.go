@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"golang.org/x/crypto/ssh"
@@ -32,10 +32,11 @@ func initiating() {
 		amount := getAmountContainers(getSession(node, config))
 
 		for number := 0; number < amount; number++ {
-			startContainers(getSession(node, config), 5)
+			startContainers(getSession(node, config), 2)
 		}
 	}
 
+	fmt.Println("Ending application ======= goPods")
 }
 
 /*
@@ -46,17 +47,15 @@ func startContainers(session *ssh.Session, amount int) {
 
 	var b bytes.Buffer
 	session.Stdout = &b
-	command := fmt.Sprintf("docker start $(docker ps -a --last %d --quiet --filter \"status=exited\")", amount)
+	command := fmt.Sprintf("docker ps -a --last %d --quiet --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4 ", amount)
 
 	if err := session.Run(command); err != nil {
 		log.Println("Erro:", err.Error())
 	}
 
 	fmt.Println("\n#############################")
-	fmt.Println("Initiating", amount, "containers\n")
+	fmt.Println("Initiating ", amount, "containers W\n")
 	fmt.Println(b.String())
-	fmt.Println("Waiting 15 minutes to start", amount, "more containers")
-	time.Sleep(15 * time.Minute)
 
 }
 
@@ -69,12 +68,18 @@ func getAmountContainers(session *ssh.Session) int {
 	var b bytes.Buffer
 	session.Stdout = &b
 
-	if err := session.Run("docker ps -a | wc -l"); err != nil {
+	if err := session.Run("docker ps -qa --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4 | wc -l"); err != nil {
 		log.Println("Erro:", err.Error())
 	}
 
 	number := strings.Replace(b.String(), "\n", " ", 2)
 	amount, _ := strconv.ParseInt(strings.TrimSpace(number), 10, 64)
+
+	if int(amount) == 0 {
+		fmt.Println("Nenhum container W pausado")
+		os.Exit(0)
+	}
+
 	return int(amount)
 }
 
