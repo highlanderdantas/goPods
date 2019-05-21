@@ -3,14 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"goPods/utils"
 	"io/ioutil"
 	"log"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"golang.org/x/crypto/ssh"
 )
-
-
 
 func main() {
 	lambda.Start(initiating)
@@ -19,7 +17,7 @@ func main() {
 /*
 	Starting Application
 */
-func initiating() {() {
+func initiating() {
 	fmt.Println("Starting Application ======= goPods ")
 
 	nodes := getNodes()
