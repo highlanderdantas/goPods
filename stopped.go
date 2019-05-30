@@ -41,7 +41,7 @@ func stoppedContainers(session *ssh.Session) {
 	var b bytes.Buffer
 	session.Stdout = &b
 
-	if err := session.Run("docker stop $(docker ps -qa --filter status=running --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4)"); err != nil {
+	if err := session.Run("docker pause $(docker ps -qa --filter status=running --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4)"); err != nil {
 		log.Println("Erro:", err.Error())
 	}
 	fmt.Println("\n#############################")

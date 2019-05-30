@@ -32,7 +32,7 @@ func initiating() {
 		amount := getAmountContainers(getSession(node, config))
 
 		for number := 0; number < amount; number++ {
-			startContainers(getSession(node, config), 2)
+			startContainers(getSession(node, config), 4)
 		}
 	}
 
@@ -47,7 +47,7 @@ func startContainers(session *ssh.Session, amount int) {
 
 	var b bytes.Buffer
 	session.Stdout = &b
-	command := fmt.Sprintf("docker ps -a --last %d --quiet --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4 ", amount)
+	command := fmt.Sprintf("docker unpause $(docker ps -qa --last %d  --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4) ", amount)
 
 	if err := session.Run(command); err != nil {
 		log.Println("Erro:", err.Error())
