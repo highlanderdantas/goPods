@@ -21,22 +21,17 @@ func main() {
 	Starting Application
 */
 func initiating() {
-	fmt.Println("Starting Application ======= goPods ")
+	log.Println("Starting Application ======= goPods ")
 
 	nodes := getNodes()
 	signer := getPPKKey()
 	config := configureSSHClient(signer)
 
 	for _, node := range nodes {
-
-		amount := getAmountContainers(getSession(node, config))
-
-		for number := 0; number < amount; number++ {
-			startContainers(getSession(node, config), 4)
-		}
+		startContainers(getSession(node, config), 2)
 	}
 
-	fmt.Println("Ending application ======= goPods")
+	log.Println("Ending application ======= goPods")
 }
 
 /*
@@ -47,15 +42,15 @@ func startContainers(session *ssh.Session, amount int) {
 
 	var b bytes.Buffer
 	session.Stdout = &b
-	command := fmt.Sprintf("docker unpause $(docker ps -qa --last %d  --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4) ", amount)
+	command := fmt.Sprintf("docker unpause $(docker ps -qa --last %d  --filter status=paused --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4) ", amount)
 
 	if err := session.Run(command); err != nil {
-		log.Println("Erro:", err.Error())
+		log.Println("Nenhum container a ser iniciado")
+	} else {
+		log.Println("#############################")
+		log.Println("Initiating ", amount, "containers W\n")
+		log.Println(b.String())
 	}
-
-	fmt.Println("\n#############################")
-	fmt.Println("Initiating ", amount, "containers W\n")
-	fmt.Println(b.String())
 
 }
 
@@ -68,7 +63,7 @@ func getAmountContainers(session *ssh.Session) int {
 	var b bytes.Buffer
 	session.Stdout = &b
 
-	if err := session.Run("docker ps -qa --filter status=exited --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4 | wc -l"); err != nil {
+	if err := session.Run("docker ps -qa --filter status=paused --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4 | wc -l"); err != nil {
 		log.Println("Erro:", err.Error())
 	}
 
@@ -76,7 +71,7 @@ func getAmountContainers(session *ssh.Session) int {
 	amount, _ := strconv.ParseInt(strings.TrimSpace(number), 10, 64)
 
 	if int(amount) == 0 {
-		fmt.Println("Nenhum container W pausado")
+		log.Println("Nenhum container W pausado")
 		os.Exit(0)
 	}
 
@@ -115,7 +110,7 @@ func getPPKKey() ssh.Signer {
 	Returns all nodes that will start the containers
 */
 func getNodes() []string {
-	return []string{"34.204.90.20:22"}
+	return []string{"54.236.187.107:22", "3.211.88.71:22"}
 }
 
 /*

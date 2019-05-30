@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -18,7 +17,7 @@ func main() {
 	Starting Application
 */
 func initiating() {
-	fmt.Println("Starting Application ======= goPods ")
+	log.Println("Starting Application ======= goPods ")
 
 	nodes := getNodes()
 	signer := getPPKKey()
@@ -30,7 +29,7 @@ func initiating() {
 		stoppedContainers(session)
 	}
 
-	fmt.Println("Ending application ======= goPods")
+	log.Println("Ending application ======= goPods")
 
 }
 
@@ -38,15 +37,18 @@ func initiating() {
 	Checks the number of containers in the node
 */
 func stoppedContainers(session *ssh.Session) {
+	defer session.Close()
+
 	var b bytes.Buffer
 	session.Stdout = &b
 
 	if err := session.Run("docker pause $(docker ps -qa --filter status=running --filter ancestor=highlanderdantas/snk-jiva-w:v1.5 --filter ancestor=highlanderdantas/snk-jiva-w:v1.4)"); err != nil {
-		log.Println("Erro:", err.Error())
+		log.Println("Nenhum container a para ser pausado")
+	} else {
+		log.Println("#############################")
+		log.Println("Pausing containers W\n")
+		log.Println(b.String())
 	}
-	fmt.Println("\n#############################")
-	fmt.Println("Pausing containers W\n")
-	fmt.Println(b.String())
 }
 
 /*
@@ -81,7 +83,7 @@ func getPPKKey() ssh.Signer {
 	Returns all nodes that will start the containers
 */
 func getNodes() []string {
-	return []string{"34.204.90.20:22"}
+	return []string{"54.236.187.107:22", "3.211.88.71:22"}
 }
 
 /*
